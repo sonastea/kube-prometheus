@@ -29,7 +29,12 @@ spec:
     spec:
       automountServiceAccountToken: false
       containers:
-      - env: []
+      - env:
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: admin-password
+              name: grafana-admin-credentials
         image: grafana/grafana:13.1.0
         name: grafana
         ports:
@@ -42,7 +47,7 @@ spec:
         resources:
           limits:
             cpu: 200m
-            memory: 200Mi
+            memory: 512Mi
           requests:
             cpu: 100m
             memory: 100Mi
@@ -58,6 +63,9 @@ spec:
         - mountPath: /var/lib/grafana
           name: grafana-storage
           readOnly: false
+        - mountPath: /grafana-dashboard-definitions/0/k8s-dashboard-en-20250125
+          name: grafana-dashboard-k8s-dashboard-en-20250125
+          readOnly: true
         - mountPath: /etc/grafana/provisioning/datasources
           name: grafana-datasources
           readOnly: false
@@ -180,6 +188,9 @@ spec:
       volumes:
       - emptyDir: {}
         name: grafana-storage
+      - name: grafana-dashboard-k8s-dashboard-en-20250125
+        configMap:
+          name: grafana-dashboard-k8s-dashboard-en-20250125
       - name: grafana-datasources
         secret:
           secretName: grafana-datasources
